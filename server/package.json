@@ -4,6 +4,7 @@
   "description": "A cool and nice server for Tooio",
   "main": "index.js",
   "scripts": {
+    "serve": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
