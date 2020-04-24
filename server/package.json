@@ -4,13 +4,17 @@
   "description": "A cool and nice server for Tooio",
   "main": "index.js",
   "scripts": {
-    "serve": "nodemon",
+    "serve": "ts-node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/socket.io": "^2.1.4",
     "nodemon": "^2.0.3",
-    "socket.io": "^2.3.0"
+    "socket-io": "^1.0.0",
+    "socket.io": "^2.3.0",
+    "ts-node": "^8.9.0",
+    "typescript": "^3.8.3"
   }
 }
