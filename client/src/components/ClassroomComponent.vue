@@ -11,8 +11,7 @@
                 md="3"
                 justify='end'
               >
-                <v-btn 
-                >
+                <v-btn @click="test(n)">
                   Tisch {{n}}
                 </v-btn>
               </v-col>
@@ -24,6 +23,12 @@
   export default {
     name: "classRoomComponent",
     data: () => ({
-    })
+    }),
+    methods:{
+      test: function (n) {
+        alert("Hi " + n);
+        //TODO connect to peers on that table
+      }
+    }
   }
 </script>
