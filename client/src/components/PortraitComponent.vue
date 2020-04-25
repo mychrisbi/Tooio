@@ -5,7 +5,7 @@
 
 <script>
   export default {
-    nam: "documentComponent",
+    name: "portraitComponent",
     props: ['url']
   }
 </script>

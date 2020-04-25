@@ -22,7 +22,7 @@
 
 <script>
   export default {
-    nam: "classRoomComponent",
+    name: "classRoomComponent",
     data: () => ({
     })
   }
