@@ -8,142 +8,141 @@
 
 <script>
 import io from "socket.io-client";
-
+var sessionDescription =
+  window.RTCSessionDescription ||
+  window.mozRTCSessionDescription ||
+  window.webkitRTCSessionDescription ||
+  window.msRTCSessionDescription;
 export default {
   name: "OutgoingVideos",
   props: {
     msg: String
   },
   data: () => ({
-    existingStreams: []
+    existingStreams: [],
+    socket: {},
+    localStream: null,
+    pc: null,
+    answersFrom: {},
+    iceConfiguration: {
+      iceServers: [
+        {
+          urls: ["stun:stun.schlund.de"]
+        }
+      ]
+    }
   }),
-  mounted: async function() {
-    var socket = io.connect("http://localhost:5000");
+  methods: {
+    setupLocalStream: async function() {
+      const videoContainer = document.getElementById("videoContainer");
+      videoContainer.srcObject = this.localStream;
+      videoContainer.onloadedmetadata = function() {
+        videoContainer.play();
+      };
+    },
+    setupSockets: async function() {
+      this.socket.on("add-users", this.onAddUsers);
+      this.socket.on("offer-made", this.onOfferMade);
+      this.socket.on("answer-made", this.onAnswerMade);
+    },
+    errorHandler: function(err) {
+      console.warn("Error", err);
+    },
+    createOffer: function(id) {
+      this.pc.createOffer(offer => {
+        this.pc.setLocalDescription(
+          new sessionDescription(offer),
+          () => {
+            this.socket.emit("make-offer", {
+              offer: offer,
+              to: id
+            });
+          },
+          this.errorHandler
+        );
+      }, this.errorHandler);
+    },
+    onAddUsers: function(data) {
+      for (var i = 0; i < data.users.length; i++) {
+        var el = document.createElement("div"),
+          id = data.users[i];
 
-    var answersFrom = {};
+        el.setAttribute("id", id);
+        el.innerHTML = id;
+        el.addEventListener("click", () => {
+          this.createOffer(id);
+        });
+        console.log(data);
+        document.getElementById("users").appendChild(el);
+      }
+    },
+    onAnswerMade: function(data) {
+      this.pc.setRemoteDescription(
+        new sessionDescription(data.answer),
+        () => {
+          document.getElementById(data.socket).setAttribute("class", "active");
+          if (!this.answersFrom[data.socket]) {
+            this.createOffer(data.socket);
+            this.answersFrom[data.socket] = true;
+          }
+        },
+        this.errorHandler
+      );
+    },
+    onOfferMade: function(data) {
+      this.pc.setRemoteDescription(
+        new sessionDescription(data.offer),
+        () => {
+          this.pc.createAnswer(answer => {
+            this.pc.setLocalDescription(
+              new sessionDescription(answer),
+              () => {
+                this.socket.emit("make-answer", {
+                  answer: answer,
+                  to: data.socket
+                });
+              },
+              this.errorHandler
+            );
+          }, this.errorHandler);
+        },
+        this.errorHandler
+      );
+    }
+  },
+  mounted: async function() {
+    this.socket = io.connect("http://localhost:5000");
     var peerConnection =
       window.RTCPeerConnection ||
       window.mozRTCPeerConnection ||
       window.webkitRTCPeerConnection ||
       window.msRTCPeerConnection;
 
-    var sessionDescription =
-      window.RTCSessionDescription ||
-      window.mozRTCSessionDescription ||
-      window.webkitRTCSessionDescription ||
-      window.msRTCSessionDescription;
-
     navigator.getUserMedia =
       navigator.getUserMedia ||
       navigator.webkitGetUserMedia ||
       navigator.mozGetUserMedia ||
       navigator.msGetUserMedia;
-
-    var pc = new peerConnection({
-      iceServers: [
-        {
-          urls: ["stun:stun.schlund.de"]
-        }
-      ]
-    });
-    pc.ontrack = obj => {
-        console.log("OK")
-      if (!this.existingStreams.includes(obj.streams[0].id)) {
-        this.existingStreams.push(obj.streams[0].id);
-
-        const vid = document.createElement("video");
-        vid.setAttribute("class", "video-small");
-        vid.setAttribute("autoplay", "autoplay");
-        document.getElementById("users-container").appendChild(vid);
-        vid.srcObject = obj.streams[0];
-      }
+    this.pc = new peerConnection(this.iceConfiguration);
+    this.pc.ontrack = obj => {
+      console.log("OK");
+      this.existingStreams[obj.streams[0].id] = obj.streams[0];
+      console.log(this.existingStreams)
+      const vid = document.createElement("video");
+      vid.setAttribute("class", "video-small");
+      vid.setAttribute("autoplay", "autoplay");
+      document.getElementById("users-container").appendChild(vid);
+      vid.srcObject = obj.streams[0];
     };
-
-    const mediaStream = await navigator.mediaDevices.getUserMedia({
+    this.localStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: true
     });
 
-    const videoContainer = document.getElementById("videoContainer");
-    videoContainer.srcObject = mediaStream;
-    videoContainer.onloadedmetadata = function() {
-      videoContainer.play();
-    };
-    pc.addStream(mediaStream);
+    await this.setupLocalStream();
+    this.pc.addStream(this.localStream);
 
-    socket.on("add-users", function(data) {
-      for (var i = 0; i < data.users.length; i++) {
-        var el = document.createElement("div"),
-          id = data.users[i];
-
-        el.setAttribute("id", id);
-        el.innerHTML = id;        
-        el.addEventListener("click", function() {
-          createOffer(id)
-        });
-        console.log(data);
-        document.getElementById("users").appendChild(el);
-      }
-    });
-
-    socket.on("remove-user", function(id) {
-      var div = document.getElementById(id);
-      document.getElementById("users").removeChild(div);
-    });
-
-    socket.on("offer-made", function(data) {
-      pc.setRemoteDescription(
-        new sessionDescription(data.offer),
-        function() {
-          pc.createAnswer(function(answer) {
-            pc.setLocalDescription(
-              new sessionDescription(answer),
-              function() {
-                socket.emit("make-answer", {
-                  answer: answer,
-                  to: data.socket
-                });
-              },
-              error
-            );
-          }, error);
-        },
-        error
-      );
-    });
-
-    socket.on("answer-made", function(data) {
-      pc.setRemoteDescription(
-        new sessionDescription(data.answer),
-        function() {
-          document.getElementById(data.socket).setAttribute("class", "active");
-          if (!answersFrom[data.socket]) {
-            createOffer(data.socket);
-            answersFrom[data.socket] = true;
-          }
-        },
-        error
-      );
-    });
-
-    function createOffer(id) {
-      pc.createOffer(function(offer) {
-        pc.setLocalDescription(
-          new sessionDescription(offer),
-          function() {
-            socket.emit("make-offer", {
-              offer: offer,
-              to: id
-            });
-          },
-          error
-        );
-      }, error);
-    }
-
-    function error(err) {
-      console.warn("Error", err);
-    }
+    await this.setupSockets();
   }
 };
 </script>
