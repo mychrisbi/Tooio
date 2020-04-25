@@ -11,7 +11,7 @@
                 md="3"
                 justify='end'
               >
-                <v-btn v-on:click="$emit('set-room', 'room-'+n)">
+                <v-btn @click="test(n)">
                   Table {{n}}
                 </v-btn>
               </v-col>
@@ -20,15 +20,20 @@
 </template>
 
 <script>
-  export default {
-    name: "classRoomComponent",
-    data: () => ({
-    }),
-    methods:{
-      test: function (n) {
-        alert("Hi " + n);
-        //TODO connect to peers on that table
-      }
+import DocumentComponent from './DocumentComponent.vue';
+export default {
+  name: "classRoomComponent",
+  data: () => ({
+    overview: true
+  }),
+  methods: {
+    test: function(n) {
+      alert("Hi " + n);
+      //TODO connect to peers on that table
     }
+  },
+  components: {
+    DocumentComponent
   }
+};
 </script>
