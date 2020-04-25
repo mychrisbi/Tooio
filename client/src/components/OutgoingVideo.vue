@@ -135,7 +135,7 @@ export default {
     }
   },
   mounted: async function() {
-    this.socket = io.connect("localhost:5000");
+    this.socket = io.connect("192.168.0.108:5000");
 
     navigator.getUserMedia =
       navigator.getUserMedia ||

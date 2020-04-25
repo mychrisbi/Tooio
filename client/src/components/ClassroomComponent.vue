@@ -11,16 +11,16 @@
                 md="3"
                 justify='end'
               >
-                <v-btn @click="test(n)">
+                <v-btn @click="$emit('set-room', 'room-'+n)">
                   Table {{n}}
                 </v-btn>
               </v-col>
             </v-row>
           </v-container>
+          
 </template>
 
 <script>
-import DocumentComponent from './DocumentComponent.vue';
 export default {
   name: "classRoomComponent",
   data: () => ({
@@ -33,7 +33,6 @@ export default {
     }
   },
   components: {
-    DocumentComponent
   }
 };
 </script>
