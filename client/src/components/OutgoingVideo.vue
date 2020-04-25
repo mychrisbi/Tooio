@@ -22,7 +22,7 @@ export default {
     existingStreams: [],
     socket: {},
     localStream: null,
-    pc: null,
+    pc: {},
     answersFrom: {},
     iceConfiguration: {
       iceServers: [
@@ -49,8 +49,8 @@ export default {
       console.warn("Error", err);
     },
     createOffer: function(id) {
-      this.pc.createOffer(offer => {
-        this.pc.setLocalDescription(
+      this.pc[id].createOffer(offer => {
+        this.pc[id].setLocalDescription(
           new sessionDescription(offer),
           () => {
             this.socket.emit("make-offer", {
@@ -63,6 +63,7 @@ export default {
       }, this.errorHandler);
     },
     onAddUsers: function(data) {
+      console.log("addusers", data);
       for (var i = 0; i < data.users.length; i++) {
         var el = document.createElement("div"),
           id = data.users[i];
@@ -70,14 +71,16 @@ export default {
         el.setAttribute("id", id);
         el.innerHTML = id;
         el.addEventListener("click", () => {
+          this.addPeerConnection(id)
           this.createOffer(id);
         });
-        console.log(data);
         document.getElementById("users").appendChild(el);
       }
     },
     onAnswerMade: function(data) {
-      this.pc.setRemoteDescription(
+      console.log("answermade", data);
+
+      this.pc[data.socket].setRemoteDescription(
         new sessionDescription(data.answer),
         () => {
           document.getElementById(data.socket).setAttribute("class", "active");
@@ -90,11 +93,13 @@ export default {
       );
     },
     onOfferMade: function(data) {
-      this.pc.setRemoteDescription(
+      console.log("offermade", data);
+      this.addPeerConnection(data.socket)
+      this.pc[data.socket].setRemoteDescription(
         new sessionDescription(data.offer),
         () => {
-          this.pc.createAnswer(answer => {
-            this.pc.setLocalDescription(
+          this.pc[data.socket].createAnswer(answer => {
+            this.pc[data.socket].setLocalDescription(
               new sessionDescription(answer),
               () => {
                 this.socket.emit("make-answer", {
@@ -108,40 +113,41 @@ export default {
         },
         this.errorHandler
       );
+    },
+    addPeerConnection: function(id) {
+      var peerConnection =
+        window.RTCPeerConnection ||
+        window.mozRTCPeerConnection ||
+        window.webkitRTCPeerConnection ||
+        window.msRTCPeerConnection;
+      const newConnection = new peerConnection(this.iceConfiguration);
+      newConnection.ontrack = obj => {
+        const vid = document.createElement("video");
+        vid.setAttribute("class", "video-small");
+        vid.setAttribute("autoplay", "autoplay");
+        document.getElementById("users-container").appendChild(vid);
+        vid.srcObject = obj.streams[0];
+      };
+      newConnection.addStream(this.localStream);
+      this.pc[id] = newConnection;
     }
   },
   mounted: async function() {
-    this.socket = io.connect("http://localhost:5000");
-    var peerConnection =
-      window.RTCPeerConnection ||
-      window.mozRTCPeerConnection ||
-      window.webkitRTCPeerConnection ||
-      window.msRTCPeerConnection;
+    this.socket = io.connect("http://192.168.0.108:5000");
 
     navigator.getUserMedia =
       navigator.getUserMedia ||
       navigator.webkitGetUserMedia ||
       navigator.mozGetUserMedia ||
       navigator.msGetUserMedia;
-    this.pc = new peerConnection(this.iceConfiguration);
-    this.pc.ontrack = obj => {
-      console.log("OK");
-      this.existingStreams[obj.streams[0].id] = obj.streams[0];
-      console.log(this.existingStreams)
-      const vid = document.createElement("video");
-      vid.setAttribute("class", "video-small");
-      vid.setAttribute("autoplay", "autoplay");
-      document.getElementById("users-container").appendChild(vid);
-      vid.srcObject = obj.streams[0];
-    };
+    console.log(navigator)
     this.localStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: true
     });
 
     await this.setupLocalStream();
-    this.pc.addStream(this.localStream);
-
+    this.addPeerConnection(this.socket.id);
     await this.setupSockets();
   }
 };
