@@ -36,21 +36,21 @@ export class ChatServer {
 
         this.io.on('connection', (socket) => {
             socket.on('join-table', (data) =>{
-                this.tables[data.name].students.push(socket.id)
-                socket.to(data.name).emit('add-users',{
+                socket.join(data.name)
+                socket.in(data.name).emit('add-users',{
                     users: [socket.id]
                 })
+                console.log(data.name)
             })
 
             socket.on('leave-table', (data) =>{
-                this.tables[data.name].students.splice(this.tables[data.name].students.indexOf(socket.id), 1)
-                socket.to(data.name).emit('remove-users',{
+                socket.leave(data.name)
+                socket.in(data.name).emit('remove-users',{
                     users: [socket.id]
                 })
             })
 
             socket.on('disconnect', () => {
-                this.tables.forEach(element => element.students.splice(element.students.indexOf(socket.id), 1));
                 this.io.emit('remove-user', socket.id);
             });
 
@@ -60,7 +60,7 @@ export class ChatServer {
                     socket: socket.id
                 });
             });
-
+            
             socket.on('make-answer', (data) => {
                 socket.to(data.to).emit('answer-made', {
                     socket: socket.id,

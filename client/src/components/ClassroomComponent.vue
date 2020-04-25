@@ -11,8 +11,8 @@
                 md="3"
                 justify='end'
               >
-                <v-btn @click="test(n)">
-                  Tisch {{n}}
+                <v-btn v-on:click="$emit('set-room', 'room-'+n)">
+                  Table {{n}}
                 </v-btn>
               </v-col>
             </v-row>

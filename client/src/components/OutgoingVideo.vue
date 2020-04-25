@@ -3,6 +3,7 @@
     <video id="videoContainer" ref="videoContainer"></video>
     <div id="users-container"></div>
     <div id="users"></div>
+    {{roomName}}
   </div>
 </template>
 
@@ -16,8 +17,9 @@ var sessionDescription =
 export default {
   name: "OutgoingVideos",
   props: {
-    msg: String
+    roomName: String
   },
+
   data: () => ({
     existingStreams: [],
     socket: {},
@@ -71,7 +73,7 @@ export default {
         el.setAttribute("id", id);
         el.innerHTML = id;
         el.addEventListener("click", () => {
-          this.addPeerConnection(id)
+          this.addPeerConnection(id);
           this.createOffer(id);
         });
         document.getElementById("users").appendChild(el);
@@ -94,7 +96,7 @@ export default {
     },
     onOfferMade: function(data) {
       console.log("offermade", data);
-      this.addPeerConnection(data.socket)
+      this.addPeerConnection(data.socket);
       this.pc[data.socket].setRemoteDescription(
         new sessionDescription(data.offer),
         () => {
@@ -133,14 +135,14 @@ export default {
     }
   },
   mounted: async function() {
-    this.socket = io.connect("http://192.168.0.108:5000");
+    this.socket = io.connect("localhost:5000");
 
     navigator.getUserMedia =
       navigator.getUserMedia ||
       navigator.webkitGetUserMedia ||
       navigator.mozGetUserMedia ||
       navigator.msGetUserMedia;
-    console.log(navigator)
+    console.log(navigator);
     this.localStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: true
@@ -149,6 +151,23 @@ export default {
     await this.setupLocalStream();
     this.addPeerConnection(this.socket.id);
     await this.setupSockets();
+
+    this.socket.emit("join-table", {
+      name: this.roomName
+    });
+  },
+  watch: {
+    // whenever question changes, this function will run
+    roomName: function(newName, oldName) {
+      this.socket.emit("leave-table", {
+        name: oldName
+      });
+      this.pc={};
+      this.answersFrom = [];
+      this.socket.emit("join-table", {
+        name: newName
+      });
+    }
   }
 };
 </script>
