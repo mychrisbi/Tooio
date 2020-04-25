@@ -1,6 +1,7 @@
 import * as express from 'express';
 import { createServer, Server } from 'http';
 import * as socketIo from 'socket.io'; // new
+import { Table } from './table';
 
 export class ChatServer {
 
@@ -9,7 +10,7 @@ export class ChatServer {
     private port: string | number;
     private server: Server;
     private io: SocketIO.Server;
-    private socketsArray = [];
+    private tables = [new Table(), new Table(), new Table(), new Table()];
 
     constructor() {
         this.createApp();
@@ -34,12 +35,22 @@ export class ChatServer {
         });
 
         this.io.on('connection', (socket) => {
-            socket.broadcast.emit('add-users', {
-                users: [socket.id]
-            });
+            socket.on('join-table', (data) =>{
+                this.tables[data.name].students.push(socket.id)
+                socket.to(data.name).emit('add-users',{
+                    users: [socket.id]
+                })
+            })
+
+            socket.on('leave-table', (data) =>{
+                this.tables[data.name].students.splice(this.tables[data.name].students.indexOf(socket.id), 1)
+                socket.to(data.name).emit('remove-users',{
+                    users: [socket.id]
+                })
+            })
 
             socket.on('disconnect', () => {
-                this.socketsArray.splice(this.socketsArray.indexOf(socket.id), 1);
+                this.tables.forEach(element => element.students.splice(element.students.indexOf(socket.id), 1));
                 this.io.emit('remove-user', socket.id);
             });
 
