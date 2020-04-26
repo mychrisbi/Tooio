@@ -12,13 +12,8 @@ export default {
     documentHash: String
   },
   mounted: async function() {
-    console.log("I am mounted");
-
     window.CodeMirror = CodeMirror;
     const Firepad = require("firepad");
-
-    console.log(this.documentHash);
-
     //// Initialize Firebase.
     //// TODO: replace with your Firebase project configuration.
     var config = {
