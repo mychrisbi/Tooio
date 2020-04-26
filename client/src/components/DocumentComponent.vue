@@ -1,11 +1,10 @@
 <template>
-  <div id="firepad-container"></div>
+  <v-card outligned hight="800px" id="firepad-container"></v-card>
 </template>
 
 <script>
 import firebase from "firebase";
 import CodeMirror from "codemirror";
-import "codemirror/lib/codemirror.css";
 
 export default {
   mounted: async function() {
@@ -71,7 +70,8 @@ export default {
       width: 100%;
       height: 100%;
     }
-    
+    @import url(https://firepad.io/releases/v1.5.9/firepad.css);
+    @import url(https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.17.0/codemirror.css);
 </style>
 
  
