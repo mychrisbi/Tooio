@@ -11,9 +11,7 @@
                 md="3"
                 justify='end'
               >
-                <v-btn @click="$emit('set-room', 'room-'+n)">
-                  Table {{n}}
-                </v-btn>
+                  <img src="@/assets/table.jpg" width="300" @click="changeTable(n)" :class="'room-'+n === activeTable ? 'active':'inactive'/>
               </v-col>
             </v-row>
           </v-container>
@@ -24,15 +22,21 @@
 export default {
   name: "classRoomComponent",
   data: () => ({
-    overview: true
+    overview: true,
+    activeTable : 'room-2'
   }),
   methods: {
-    test: function(n) {
-      alert("Hi " + n);
-      //TODO connect to peers on that table
+    changeTable: function(n) {
+      this.$emit('set-room', 'room-'+n);
+      this.activeTable = 'room-'+n
     }
   },
   components: {
   }
 };
 </script>
+<style scoped>
+.active{ 
+  border:1px solid green
+}
+</style>
