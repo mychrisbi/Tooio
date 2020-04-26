@@ -3,7 +3,7 @@
     <main>
       <v-container fluid grid-list-md fill-height align-end>
         <v-flex d-flex xs12 sm12 md6>
-          <DocumentComponent />
+          <DocumentComponent :documentHash="hashMap[currentRoom]" :key="currentRoom" />
         </v-flex>
         <v-col>
           <ClassRoomComponent v-on:set-room=" currentRoom= $event" />
@@ -24,7 +24,14 @@ import OutgoingVideo from "./components/OutgoingVideo.vue";
 export default {
   data: () => ({
     lorem: `Lorem ipsum dolor sit amet, mel at clita quando. Te sit oratio vituperatoribus, nam ad ipsum posidonium mediocritatem, explicari dissentiunt cu mea. Repudiare disputationi vim in, mollis iriure nec cu, alienum argumentum ius ad. Pri eu justo aeque torquatos.`,
-    currentRoom: "room-2"
+    currentRoom: "room-2",
+    hashMap:{
+      'room-1':'M5phJoAuRkrQI26YacD',
+      'room-2':'M5plNJa4q_vQJs2oYSw',
+      'room-3':'M5plLMcZg7-1eFegFDL',
+      'room-4':'M5plP4IChw007s1WDkt',
+
+    }
   }),
   components: {
     DocumentComponent,
@@ -41,6 +48,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>

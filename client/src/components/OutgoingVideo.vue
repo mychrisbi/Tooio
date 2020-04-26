@@ -145,7 +145,7 @@ export default {
   },
   mounted: async function() {
     this.socket = io.connect("http://localhost:5000");
-
+  
     navigator.getUserMedia =
       navigator.getUserMedia ||
       navigator.webkitGetUserMedia ||

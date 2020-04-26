@@ -3,16 +3,21 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/database";
 import CodeMirror from "codemirror";
 
 export default {
+  props: {
+    documentHash: String
+  },
   mounted: async function() {
     console.log("I am mounted");
 
-      window.CodeMirror = CodeMirror;
-      const Firepad = require("firepad");
+    window.CodeMirror = CodeMirror;
+    const Firepad = require("firepad");
 
+    console.log(this.documentHash);
 
     //// Initialize Firebase.
     //// TODO: replace with your Firebase project configuration.
@@ -21,57 +26,37 @@ export default {
       authDomain: "https://tooio-89793.firebaseio.com/",
       databaseURL: "https://tooio-89793.firebaseio.com/"
     };
-    firebase.initializeApp(config);
+    try {
+      firebase.initializeApp(config);
+    } catch (err) {
+      // we skip the "already exists" message which is
+      // not an actual error when we're hot-reloading
+    }
 
     //// Get Firebase Database reference.
-    var firepadRef = getExampleRef();
+    var ref = firebase.database().ref();
+    var firepadRef = ref.child(this.documentHash);
 
     //// Create CodeMirror (with lineWrapping on).
     var codeMirror = CodeMirror(document.getElementById("firepad-container"), {
       lineWrapping: true
     });
-    console.log(codeMirror);
     //// Create Firepad (with rich text toolbar and shortcuts enabled).
-    var firepad = Firepad.fromCodeMirror(firepadRef, codeMirror, {
+    Firepad.fromCodeMirror(firepadRef, codeMirror, {
       richTextToolbar: true,
       richTextShortcuts: true
     });
-
-    //// Initialize contents.
-    firepad.on("ready", function() {
-      if (firepad.isHistoryEmpty()) {
-        firepad.setHtml(
-          '<span style="font-size: 24px;">Rich-text editing with <span style="color: red">Firepad!</span></span><br/><br/>Collaborative-editing made easy.\n'
-        );
-      }
-    });
-
-    // Helper to get hash from end of URL or generate a random one.
-    function getExampleRef() {
-      var ref = firebase.database().ref();
-      var hash = window.location.hash.replace(/#/g, "");
-      if (hash) {
-        ref = ref.child(hash);
-      } else {
-        ref = ref.push(); // generate unique location.
-        window.location = window.location + "#" + ref.key; // add it as a hash to the URL.
-      }
-      if (typeof console !== "undefined") {
-        console.log("Firebase data: ", ref.toString());
-      }
-      return ref;
-    }
   }
 };
 </script>
 
 <style scoped>
-    #firepad-container {
-      width: 100%;
-      height: 60vh;
-    }
-    @import url(https://firepad.io/releases/v1.5.9/firepad.css);
-    @import url(https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.17.0/codemirror.css);
+#firepad-container {
+  width: 100%;
+  height: 60vh;
+}
+@import url(https://firepad.io/releases/v1.5.9/firepad.css);
+@import url(https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.17.0/codemirror.css);
 </style>
 
  
