@@ -1,7 +1,7 @@
 <template>
 <v-container>
             <v-card color="green" dark height=150px align-beginning>
-              <v-card-text>I am a blackboard because that's easier than a whole ass classroom.</v-card-text>
+              <v-card-text>I am a blackboard because that's easier than a whole classroom.</v-card-text>
             </v-card>
             <v-row>
               <v-col
