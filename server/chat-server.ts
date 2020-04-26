@@ -51,7 +51,9 @@ export class ChatServer {
             })
 
             socket.on('disconnect', () => {
-                this.io.emit('remove-user', socket.id);
+                this.io.emit('remove-users', {
+                    users: [socket.id]
+                });
             });
 
             socket.on('make-offer', (data) => {
