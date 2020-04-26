@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <img src="@/assets/logo.png" class="logo" />
     <main>
       <v-container fluid grid-list-md fill-height align-end>
         <v-flex d-flex xs12 sm12 md6>
@@ -42,5 +43,9 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+.logo{
+  width: 396px;
+  height: 122px;
 }
 </style>
