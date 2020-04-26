@@ -11,7 +11,7 @@
                 md="3"
                 justify='end'
               >
-                  <img src="@/assets/table.jpg" width="300" @click="changeTable(n)" :class="'room-'+n === activeTable ? 'active':'inactive'/>
+                  <img src="@/assets/table.jpg" width="300" @click="changeTable(n)" :class="'room-'+n === activeTable ? 'active':'inactive'"/>
               </v-col>
             </v-row>
           </v-container>
