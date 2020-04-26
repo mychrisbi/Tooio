@@ -9,9 +9,6 @@
           <ClassRoomComponent v-on:set-room=" currentRoom= $event" />
           <v-layout align-end>
             <outgoing-video :roomName="currentRoom"></outgoing-video>
-            <v-flex v-for="i in 3" :key="i" xs4>
-              <PortraitComponent :url="`https://randomuser.me/api/portraits/men/${i + 20}.jpg`" />
-            </v-flex>
           </v-layout>
         </v-col>
       </v-container>
@@ -22,7 +19,6 @@
 <script>
 import DocumentComponent from "./components/DocumentComponent.vue";
 import ClassRoomComponent from "./components/ClassroomComponent.vue";
-import PortraitComponent from "./components/PortraitComponent.vue";
 import OutgoingVideo from "./components/OutgoingVideo.vue";
 
 export default {
@@ -33,8 +29,7 @@ export default {
   components: {
     DocumentComponent,
     ClassRoomComponent,
-    OutgoingVideo,
-    PortraitComponent
+    OutgoingVideo
   }
 };
 </script>

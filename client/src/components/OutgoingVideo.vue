@@ -1,8 +1,12 @@
 <template>
   <div class="hello">
-    <video id="videoContainer" ref="videoContainer"></video>
-    <div id="users-container"></div>
-    <div id="users"></div>
+    <div class="videos">
+      <div id="users-container">
+              <video id="videoContainer" ref="videoContainer" class="video-small"></video>
+
+      </div>
+      <div id="users"></div>
+    </div>
     {{roomName}}
   </div>
 </template>
@@ -26,6 +30,7 @@ export default {
     localStream: null,
     pc: {},
     answersFrom: {},
+    activeVideos: [],
     iceConfiguration: {
       iceServers: [
         {
@@ -36,7 +41,7 @@ export default {
   }),
   methods: {
     setupLocalStream: async function() {
-      const videoContainer = document.getElementById("videoContainer");
+      const videoContainer = this.$refs.videoContainer;
       videoContainer.srcObject = this.localStream;
       videoContainer.onloadedmetadata = function() {
         videoContainer.play();
@@ -124,11 +129,15 @@ export default {
         window.msRTCPeerConnection;
       const newConnection = new peerConnection(this.iceConfiguration);
       newConnection.ontrack = obj => {
-        const vid = document.createElement("video");
-        vid.setAttribute("class", "video-small");
-        vid.setAttribute("autoplay", "autoplay");
-        document.getElementById("users-container").appendChild(vid);
-        vid.srcObject = obj.streams[0];
+        if (!this.existingStreams.includes(obj.streams[0])) {
+          this.existingStreams.push(obj.streams[0])
+          const vid = document.createElement("video");
+          vid.setAttribute("class", "video-small");
+          vid.setAttribute("autoplay", "autoplay");
+          vid.setAttribute("style", "width: 300px;")
+          document.getElementById("users-container").appendChild(vid);
+          vid.srcObject = obj.streams[0];
+        }
       };
       newConnection.addStream(this.localStream);
       this.pc[id] = newConnection;
@@ -162,7 +171,7 @@ export default {
       this.socket.emit("leave-table", {
         name: oldName
       });
-      this.pc={};
+      this.pc = {};
       this.answersFrom = [];
       this.socket.emit("join-table", {
         name: newName
@@ -173,4 +182,19 @@ export default {
 </script>
 
 <style scoped>
+#users-container {
+  display: flex;
+  overflow: auto;
+  max-width: 30vw;
+}
+.videos {
+  display: flex;
+  overflow: auto;
+}
+#users{
+    max-width: 15vw;
+}
+.video-small{
+  width: 300px;
+}
 </style>
