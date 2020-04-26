@@ -1,5 +1,5 @@
 <template>
-  <v-card outligned hight="800px" id="firepad-container"></v-card>
+  <div id="firepad-container"></div>
 </template>
 
 <script>
@@ -68,7 +68,7 @@ export default {
 <style scoped>
     #firepad-container {
       width: 100%;
-      height: 100%;
+      height: 60vh;
     }
     @import url(https://firepad.io/releases/v1.5.9/firepad.css);
     @import url(https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.17.0/codemirror.css);
