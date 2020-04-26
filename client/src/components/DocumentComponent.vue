@@ -5,15 +5,16 @@
 <script>
 import firebase from "firebase";
 import CodeMirror from "codemirror";
-import Firepad from "firepad";
+import "codemirror/lib/codemirror.css";
 
 export default {
-  data: () => ({
-    lorem: `Lorem ipsum dolor sit amet, mel at clita quando. Te sit oratio vituperatoribus, nam ad ipsum posidonium mediocritatem, explicari dissentiunt cu mea. Repudiare disputationi vim in, mollis iriure nec cu, alienum argumentum ius ad. Pri eu justo aeque torquatos.`
-  }),
-
   mounted: async function() {
     console.log("I am mounted");
+
+      window.CodeMirror = CodeMirror;
+      const Firepad = require("firepad");
+
+
     //// Initialize Firebase.
     //// TODO: replace with your Firebase project configuration.
     var config = {
@@ -64,5 +65,13 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+    #firepad-container {
+      width: 100%;
+      height: 100%;
+    }
+    
+</style>
 
  
