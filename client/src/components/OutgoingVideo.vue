@@ -4,9 +4,8 @@
       <div id="users-container">
         <video id="videoContainer" ref="videoContainer" class="video-small"></video>
       </div>
-      <div id="users"></div>
+      <div id="users" style="display:none;"></div>
     </div>
-    {{roomName}}
   </div>
 </template>
 
@@ -205,7 +204,7 @@ export default {
 #users-container {
   display: flex;
   overflow: auto;
-  max-width: 30vw;
+  max-width: 45vw;
 }
 .videos {
   display: flex;
