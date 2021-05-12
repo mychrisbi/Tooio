@@ -10,7 +10,7 @@
   "dependencies": {
     "@firebase/installations": "^0.4.8",
     "@mdi/font": "^3.6.95",
-    "codemirror": "^5.53.2",
+    "codemirror": "^5.58.2",
     "core-js": "^3.6.4",
     "firebase": "^7.14.2",
     "firepad": "^1.5.10",
